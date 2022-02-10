@@ -1,4 +1,4 @@
-/*Base register address header file*/
+/*Base register adddress header file*/
 #include "stm32l1xx.h"
 /*Library related header files*/
 #include "stm32l1xx_ll_gpio.h"
@@ -18,7 +18,7 @@
 #define MUTE					(uint16_t) 2
 
 /*for 10ms update event*/
-#define TIMx_PSC			2
+#define TIMx_PSC			2 
 
 /*Macro function for ARR calculation*/
 #define ARR_CALCULATE(N) ((32000000) / ((TIMx_PSC) * (N)))
@@ -74,11 +74,11 @@ int main()
 	TIMBase_Config();
 	TIM_OC_Config();
 	TIM_IC_Config();
-
+	
 	while(1)
 	{
 		setInput();
-
+		
 		if (Red == ON)
 		{
 			LL_GPIO_ResetOutputPin(GPIOC, LL_GPIO_PIN_12);
@@ -89,7 +89,7 @@ int main()
 				i = 6;
 			}
 		}
-
+		
 		if (Yellow == ON)
 		{
 			LL_GPIO_ResetOutputPin(GPIOC, LL_GPIO_PIN_11);
@@ -103,15 +103,15 @@ int main()
 			{
 				Yellow = OFF;
 				Green = ON;
-				i = 61;
-
+				i = 16;
+				
 			}
 		}
-
+		
 		if (Green == ON)
 		{
 			LL_GPIO_SetOutputPin(GPIOC, LL_GPIO_PIN_12);
-			if (i<=10)
+			if (i<=5)
 			{
 				if (LL_TIM_GetCounter(TIM2)<500)
 					LL_GPIO_ResetOutputPin(GPIOC, LL_GPIO_PIN_11);
@@ -161,7 +161,7 @@ void showCount(uint8_t c)
 		reset7Seg();
 		if(d==0)
 		{
-
+			
 		}
 		else if(d==1)
 		{
@@ -199,16 +199,16 @@ void GPIO_Config(void)
 	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
 	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
 	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD);
-
+	
 	LL_GPIO_InitTypeDef GPIO_Init;
 	LL_GPIO_InitTypeDef ltc4727_initstruct;
 	LL_GPIO_InitTypeDef rgb_led;
-
+	
 	GPIO_Init.Mode = LL_GPIO_MODE_INPUT;
 	GPIO_Init.Pin = LL_GPIO_PIN_2;
 	GPIO_Init.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
 	LL_GPIO_Init(GPIOD, &GPIO_Init);
-
+	
 	ltc4727_initstruct.Mode = LL_GPIO_MODE_OUTPUT;
 	ltc4727_initstruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
 	ltc4727_initstruct.Pull = LL_GPIO_PULL_NO;
@@ -218,32 +218,32 @@ void GPIO_Config(void)
 
 	ltc4727_initstruct.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3;
 	LL_GPIO_Init(GPIOC, &ltc4727_initstruct);
-
+	
 	rgb_led.Mode = LL_GPIO_MODE_OUTPUT;
 	rgb_led.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
 	rgb_led.Pin = LL_GPIO_PIN_10 |LL_GPIO_PIN_11 | LL_GPIO_PIN_12;
 	rgb_led.Pull = LL_GPIO_PULL_NO;
 	rgb_led.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
 	LL_GPIO_Init(GPIOC, &rgb_led);
-
+	
 	LL_GPIO_SetOutputPin(GPIOC, LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12);
 }
 
 void TIMBase_Config(void)
 {
 	LL_TIM_InitTypeDef timbase_initstructure;
-
+	
 	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
-
+	
 	timbase_initstructure.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
 	timbase_initstructure.CounterMode = LL_TIM_COUNTERMODE_UP;
 	timbase_initstructure.Autoreload = 1000-1;
 	timbase_initstructure.Prescaler = 32000-1;
-
+	
 	LL_TIM_Init(TIM2, &timbase_initstructure);
-
+	
 	LL_TIM_EnableIT_UPDATE(TIM2);
-
+	
 	NVIC_SetPriority(TIM2_IRQn, 0);
 	NVIC_EnableIRQ(TIM2_IRQn);
 }
@@ -260,7 +260,7 @@ void TIM2_IRQHandler(void)
 void TIM_BASE_NOTE_Config(void)
 {
 	LL_TIM_InitTypeDef timbase_initstructure;
-
+	
 	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
 	//Time-base configure
 	timbase_initstructure.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
@@ -273,12 +273,12 @@ void TIM_BASE_NOTE_Config(void)
 void TIM_OC_Config(void)
 {
 	TIM_BASE_NOTE_Config();
-
+	
 	LL_GPIO_InitTypeDef gpio_initstructure;
 	LL_TIM_OC_InitTypeDef tim_oc_initstructure;
-
+	
 	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
-
+	
 	gpio_initstructure.Mode = LL_GPIO_MODE_ALTERNATE;
 	gpio_initstructure.Alternate = LL_GPIO_AF_2;
 	gpio_initstructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
@@ -286,7 +286,7 @@ void TIM_OC_Config(void)
 	gpio_initstructure.Pull = LL_GPIO_PULL_NO;
 	gpio_initstructure.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
 	LL_GPIO_Init(GPIOB, &gpio_initstructure);
-
+	
 	tim_oc_initstructure.OCState = LL_TIM_OCSTATE_DISABLE;
 	tim_oc_initstructure.OCMode = LL_TIM_OCMODE_PWM1;
 	tim_oc_initstructure.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
@@ -296,7 +296,7 @@ void TIM_OC_Config(void)
 	NVIC_SetPriority(TIM4_IRQn, 1);
 	NVIC_EnableIRQ(TIM4_IRQn);
 	LL_TIM_EnableIT_CC1(TIM4);
-
+	
 	/*Start Output Compare in PWM Mode*/
 	LL_TIM_CC_EnableChannel(TIM4, LL_TIM_CHANNEL_CH1);
 }
@@ -314,7 +314,7 @@ void TIM_IC_Config(void)
 	LL_GPIO_InitTypeDef timic_gpio;
 	LL_TIM_IC_InitTypeDef timic;
 	LL_TIM_InitTypeDef timbase_initstructure;
-
+	
 	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
 
 	timic_gpio.Mode = LL_GPIO_MODE_ALTERNATE;
@@ -324,12 +324,12 @@ void TIM_IC_Config(void)
 	LL_GPIO_Init(GPIOC, &timic_gpio);
 
 	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM3);
-
+	
 	timbase_initstructure.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
 	timbase_initstructure.CounterMode = LL_TIM_COUNTERMODE_UP;
 	timbase_initstructure.Autoreload = 10000-1;
 	timbase_initstructure.Prescaler = 32000-1;
-
+	
 	LL_TIM_Init(TIM3, &timbase_initstructure);
 
 	//TIM_IC Configure CH3
@@ -356,7 +356,7 @@ void TIM_IC_Config(void)
 }
 
 void TIM3_IRQHandler(void)
-{
+{  
 	if(LL_TIM_IsActiveFlag_CC3(TIM3) == SET)
 	{
 			LL_TIM_ClearFlag_CC3(TIM3);
@@ -380,12 +380,12 @@ void SystemClock_Config(void)
   /* Set Voltage scale1 as MCU will run at 32MHz */
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
   LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
-
+ 
   /* Poll VOSF bit of in PWR_CSR. Wait until it is reset to 0 */
   while (LL_PWR_IsActiveFlag_VOSF() != 0)
   {
   };
-
+ 
   /* Enable HSI if not already activated*/
   if (LL_RCC_HSI_IsReady() == 0)
   {
@@ -395,7 +395,7 @@ void SystemClock_Config(void)
     {
     };
   }
-
+ 
 
   /* Main PLL configuration and activation */
   LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLL_MUL_6, LL_RCC_PLL_DIV_3);
@@ -404,14 +404,14 @@ void SystemClock_Config(void)
   while(LL_RCC_PLL_IsReady() != 1)
   {
   };
-
+ 
   /* Sysclk activation on the main PLL */
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
   LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
   while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
   {
   };
-
+ 
   /* Set APB1 & APB2 prescaler*/
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
   LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);
@@ -420,7 +420,7 @@ void SystemClock_Config(void)
   /* This frequency can be calculated through LL RCC macro                          */
   /* ex: __LL_RCC_CALC_PLLCLK_FREQ (HSI_VALUE, LL_RCC_PLL_MUL_6, LL_RCC_PLL_DIV_3); */
   LL_Init1msTick(32000000);
-
+ 
   /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
   LL_SetSystemCoreClock(32000000);
 }
